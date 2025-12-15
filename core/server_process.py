@@ -25,6 +25,11 @@ class ServerProcess(QObject):
         self.process.readyReadStandardError.connect(self.handle_stderr)
         self.process.stateChanged.connect(self.handle_state_change)
         self.process.finished.connect(self.handle_finished)
+        
+        self.current_status = "OFFLINE"
+
+    def get_current_status(self):
+        return self.current_status
 
     def start_server(self):
         self.is_restarting = False
@@ -64,6 +69,7 @@ class ServerProcess(QObject):
         self.log_output.emit(msg)
         self.log_history.append(msg)
         self.process.start()
+        self.current_status = "STARTING"
         self.status_changed.emit("STARTING")
 
     def stop_server(self):
@@ -80,6 +86,7 @@ class ServerProcess(QObject):
 
             self.is_stopping = True
             self.write_command("stop")
+            self.current_status = "STOPPING"
             self.status_changed.emit("STOPPING")
             
     def kill_server(self, restart=False):
@@ -99,6 +106,7 @@ class ServerProcess(QObject):
             
         elif state == QProcess.Running:
             self.write_command("stop")
+            self.current_status = "RESTARTING"
             self.status_changed.emit("RESTARTING")
             self.log_output.emit("Server restart initiated...")
             self.log_history.append("Server restart initiated...")
@@ -127,12 +135,15 @@ class ServerProcess(QObject):
 
     def handle_state_change(self, state):
         if state == QProcess.Running:
+            self.current_status = "ONLINE"
             self.status_changed.emit("ONLINE")
         elif state == QProcess.NotRunning:
+            self.current_status = "OFFLINE"
             self.status_changed.emit("OFFLINE")
 
     def handle_finished(self):
         self.log_output.emit("Server process ended.")
+        self.current_status = "OFFLINE"
         self.status_changed.emit("OFFLINE")
         
         if self.is_restarting:

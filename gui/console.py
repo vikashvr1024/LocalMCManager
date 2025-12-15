@@ -241,6 +241,10 @@ class ServerPage(QWidget):
         self.process.status_changed.connect(self.update_status)
         # self.process.finished.connect(self.handle_finished) # We handle finish via status change mostly
         
+        # Sync Initial Status
+        if hasattr(self.process, 'get_current_status'):
+             self.update_status(self.process.get_current_status())
+        
     def update_status(self, status):
         self.console_tab.status_lbl.setText(status)
         
