@@ -12,11 +12,25 @@ A modern, lightweight, and powerful local Minecraft server manager built with Py
     *   Fabric
     *   Forge
     *   Spigot
-*   **Performance Monitoring**: Real-time RAM and CPU usage tracking for each server.
 *   **Configuration**: Easy-to-use GUI for adjusting server properties (`server.properties`), RAM allocation, and Java version.
 *   **Console Access**: direct access to the server console for executing commands.
 *   **Modern UI**: Sleek, dark-themed interface designed for usability.
 *   **Standalone**: No external dependencies required (bundled with PyInstaller).
+
+## ☕ Java Requirements
+
+To run Minecraft servers, you must have Java installed. The required version depends on the Minecraft version you select:
+
+*   **Java 21**: Required for Minecraft 1.20.5 and newer.
+*   **Java 17**: Required for Minecraft 1.18 to 1.20.4.
+*   **Java 16**: Required for Minecraft 1.17.
+*   **Java 8**: Required for Minecraft 1.16.5 and older.
+
+**Download Java:**
+*   [Adoptium Temurin (Recommended)](https://adoptium.net/)
+*   [Oracle Java](https://www.oracle.com/java/technologies/downloads/)
+
+Ensure you install the correct version for the servers you intend to run. You can have multiple Java versions installed and select the specific `java.exe` path in the server settings.
 
 ## 🛠️ Installation
 
