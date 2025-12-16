@@ -69,7 +69,7 @@ class ServerProcess(QObject):
         self.log_output.emit(msg)
         self.log_history.append(msg)
         self.process.start()
-        self.current_status = "STARTING"
+        self.current_status = "STARTING"    
         self.status_changed.emit("STARTING")
 
     def stop_server(self):

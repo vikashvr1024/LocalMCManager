@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-                               QScrollArea, QFrame, QLabel, QGridLayout)
-from PySide6.QtGui import QIcon
+                               QScrollArea, QFrame, QLabel, QGridLayout, QStyleOption, QStyle)
+from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtCore import Qt, Signal, QSize
 
 class ServerCard(QFrame):
@@ -14,17 +14,23 @@ class ServerCard(QFrame):
         self.setFixedHeight(140)
         self.setFixedWidth(340) # Keep fixed width as per previous design, user snippet had min width but this is safer for grid
         
+        # Load Background Image
+        from core.config_manager import get_resource_path
+        import os
+        card_bg = get_resource_path(os.path.join("assets", "card.png")).replace("\\", "/")
+
         # Modern Card Style
-        self.setStyleSheet("""
-            QFrame {
+        self.setStyleSheet(f"""
+            QFrame {{
+                background-image: url({card_bg});
                 background-color: #2d2d2d;
                 border: 2px solid transparent;
                 border-radius: 12px;
-            }
-            QFrame:hover {
+            }}
+            QFrame:hover {{
                 background-color: #353535;
                 border: 2px solid #00bcd4;
-            }
+            }}
         """)
         
         layout = QVBoxLayout(self)
@@ -77,13 +83,14 @@ class ServerCard(QFrame):
         
         # Version
         ver_lbl = QLabel(f"{server_data['jar_type']} {server_data['version']}")
-        ver_lbl.setStyleSheet("color: #aaaaaa; font-size: 13px; border: none; background: transparent;")
+        ver_lbl.setStyleSheet("color: white; font-size: 14px; font-weight: bold; border: none; background: transparent;")
         layout.addWidget(ver_lbl)
         
         # Status
         status_lbl = QLabel(status)
         color = "#44ff44" if status == "ONLINE" else "#ff4444"
         if status == "STARTING": color = "#FFC107"
+        if status == "RUNNING": color = "#44ff44" # Green for Running
         
         status_lbl.setStyleSheet(f"color: {color}; font-weight: bold; border: none; background: transparent;")
         layout.addWidget(status_lbl)
@@ -113,10 +120,11 @@ class Dashboard(QWidget):
         header.setContentsMargins(24, 24, 24, 0)
         
         title = QLabel("My Servers")
+        title.setProperty("class", "title")
         title.setStyleSheet("font-size: 24px; font-weight: bold;")
         
-        add_btn = QPushButton("+ Create Server")
-        add_btn.setFixedSize(150, 40)
+        add_btn = QPushButton("Create Server")
+        add_btn.setFixedSize(220, 45)
         add_btn.setStyleSheet("""
             QPushButton {
                 background-color: #007ACC;
@@ -130,6 +138,17 @@ class Dashboard(QWidget):
         """)
         add_btn.clicked.connect(self.create_server_clicked.emit)
         
+        # Load Logo for Background
+        from core.config_manager import get_resource_path
+        import os
+        logo_path = get_resource_path(os.path.join("assets", "minecraft_logo.png"))
+        self.logo_pixmap = None
+        if os.path.exists(logo_path):
+             self.logo_pixmap = QPixmap(logo_path)
+             # Scale "Big"
+             if self.logo_pixmap.height() > 200:
+                 self.logo_pixmap = self.logo_pixmap.scaledToHeight(200, Qt.SmoothTransformation)
+
         header.addWidget(title)
         header.addStretch()
         header.addWidget(add_btn)
@@ -179,3 +198,15 @@ class Dashboard(QWidget):
         # Add stretch to empty columns to keep alignment if row not full
         for col in range(columns):
             self.grid_layout.setColumnStretch(col, 1)
+
+    def paintEvent(self, event):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
+        
+        if self.logo_pixmap:
+            # Draw top center
+            x = (self.width() - self.logo_pixmap.width()) // 2
+            y = 10 
+            p.drawPixmap(x, y, self.logo_pixmap)

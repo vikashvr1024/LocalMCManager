@@ -94,9 +94,14 @@ class NetworkTab(QWidget):
         layout.addWidget(conn_group)
         
         # Refresh Button
+        refresh_layout = QHBoxLayout()
+        refresh_layout.addStretch()
         self.btn_refresh = QPushButton("Refresh IPs")
+        self.btn_refresh.setFixedWidth(150)
+        self.btn_refresh.setStyleSheet("background-color: #007ACC; color: white; padding: 10px; font-weight: bold;")
         self.btn_refresh.clicked.connect(self.refresh_ips)
-        layout.addWidget(self.btn_refresh)
+        refresh_layout.addWidget(self.btn_refresh)
+        layout.addLayout(refresh_layout)
         
         # Tunneling Section (Playit.gg)
         tunnel_group = QGroupBox("Tunneling (Playit.gg)")
@@ -144,7 +149,7 @@ class NetworkTab(QWidget):
         layout.addStretch()
         
         # Init
-        self.refresh_local_ip()
+        self.refresh_info()
         self.check_agent_exists()
         self.check_existing_process()
 
@@ -270,14 +275,18 @@ class NetworkTab(QWidget):
         return port
 
     def refresh_ips(self):
-        self.refresh_local_ip()
+        self.refresh_info()
         self.public_ip_lbl.setText("Fetching...")
         
         self.worker = PublicIpWorker()
         self.worker.finished.connect(self.update_public_ip)
         self.worker.start()
 
-    def refresh_local_ip(self):
+    def refresh_info(self):
+        # Refresh Port
+        self.port_lbl.setText(self.get_port())
+        
+        # Refresh Local IP
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("8.8.8.8", 80))

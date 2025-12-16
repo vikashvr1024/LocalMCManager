@@ -1,9 +1,11 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QFormLayout, QLineEdit, 
-                               QSpinBox, QCheckBox, QPushButton, QScrollArea, QLabel, QMessageBox, QStackedWidget)
-from PySide6.QtCore import Qt
+                               QSpinBox, QCheckBox, QPushButton, QScrollArea, QLabel, QMessageBox, QStackedWidget, QHBoxLayout)
+from PySide6.QtCore import Qt, Signal
 import os
 
 class PropertiesEditor(QWidget):
+    properties_saved = Signal()
+
     def __init__(self, server_path):
         super().__init__()
         self.server_path = server_path
@@ -51,10 +53,16 @@ class PropertiesEditor(QWidget):
         scroll.setWidget(self.content_widget)
         layout_editor.addWidget(scroll)
         
+        # Save Button Area
+        btn_layout = QHBoxLayout()
+        btn_layout.addStretch()
+        
         self.btn_save = QPushButton("Save Properties")
         self.btn_save.setStyleSheet("background-color: #007ACC; color: white; padding: 10px; font-weight: bold;")
         self.btn_save.clicked.connect(self.save_properties)
-        layout_editor.addWidget(self.btn_save)
+        
+        btn_layout.addWidget(self.btn_save)
+        layout_editor.addLayout(btn_layout)
         
         # Add pages
         self.stack.addWidget(self.page_missing)
@@ -151,5 +159,6 @@ class PropertiesEditor(QWidget):
                 f.write(content)
             
             QMessageBox.information(self, "Success", "Properties saved successfully!")
+            self.properties_saved.emit()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save: {e}")

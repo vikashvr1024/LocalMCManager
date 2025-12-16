@@ -61,13 +61,18 @@ class FileManager(QWidget):
         # Tools
         tools = QHBoxLayout()
         self.btn_refresh = QPushButton("Refresh")
+        self.btn_refresh.setMinimumSize(100, 40)
+        self.btn_refresh.setStyleSheet("background-color: #007ACC; color: white; font-weight: bold; font-size: 16px; padding: 5px 15px;")
         self.btn_refresh.clicked.connect(self.refresh)
         
         self.btn_upload = QPushButton("Upload File")
-        self.btn_upload.setStyleSheet("background-color: #4CAF50; color: white;")
+        self.btn_upload.setMinimumSize(100, 40)
+        self.btn_upload.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; font-size: 16px; padding: 5px 15px;")
         self.btn_upload.clicked.connect(self.upload_file)
         
         self.btn_open_folder = QPushButton("Open in Explorer")
+        self.btn_open_folder.setMinimumSize(100, 40)
+        self.btn_open_folder.setStyleSheet("background-color: #007ACC; color: white; font-weight: bold; font-size: 16px; padding: 5px 15px;")
         self.btn_open_folder.clicked.connect(self.open_system_folder)
         
         tools.addWidget(self.btn_refresh)

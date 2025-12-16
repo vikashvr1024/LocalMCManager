@@ -4,33 +4,6 @@ from PySide6.QtCore import Qt, QSize
 
 from gui.theme import Theme
 
-class SidebarButton(QPushButton):
-    def __init__(self, text, icon_name=None, parent=None):
-        super().__init__(text, parent)
-        self.setCheckable(True)
-        self.setAutoExclusive(True)
-        self.setFixedHeight(45)
-        self.setCursor(Qt.PointingHandCursor)
-        self.setStyleSheet(f"""
-            QPushButton {{
-                text-align: left;
-                padding-left: 24px;
-                border: none;
-                background-color: transparent;
-                color: {Theme.TEXT_SECONDARY};
-                font-size: 14px;
-                border-radius: 0px;
-            }}
-            QPushButton:checked {{
-                background-color: {Theme.BG_DARK};
-                color: {Theme.ACCENT};
-                border-left: 3px solid {Theme.ACCENT};
-            }}
-            QPushButton:hover:!checked {{
-                background-color: {Theme.BG_DARK};
-                color: {Theme.TEXT_PRIMARY};
-            }}
-        """)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -41,6 +14,7 @@ class MainWindow(QMainWindow):
         
         # Main Layout
         self.central_widget = QWidget()
+        self.central_widget.setObjectName("CentralWidget")
         self.setCentralWidget(self.central_widget)
         self.main_layout = QHBoxLayout(self.central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -50,9 +24,6 @@ class MainWindow(QMainWindow):
         self.running_servers = {} # {server_id: ServerProcess}
         self.playit_manager = None
         
-        # Sidebar
-        self.create_sidebar()
-        
         # Content Area
         self.content_area = QStackedWidget()
         self.main_layout.addWidget(self.content_area)
@@ -60,35 +31,6 @@ class MainWindow(QMainWindow):
         # Initial Page
         self.init_home_page()
 
-    def create_sidebar(self):
-        self.sidebar_container = QFrame()
-        self.sidebar_container.setFixedWidth(220)
-        self.sidebar_container.setStyleSheet(f"background-color: {Theme.BG_PANEL}; border-right: 1px solid {Theme.BORDER};")
-        
-        self.sidebar_layout = QVBoxLayout(self.sidebar_container)
-        self.sidebar_layout.setContentsMargins(0, 0, 0, 0)
-        self.sidebar_layout.setSpacing(5)
-        
-        # Title
-        title_label = QLabel("MC MANAGER")
-        title_label.setFixedHeight(60)
-        title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        title_label.setStyleSheet(f"font-weight: 900; font-size: 18px; color: {Theme.ACCENT}; letter-spacing: 1px; padding-left: 24px;")
-        self.sidebar_layout.addWidget(title_label)
-        
-        # Navigation Buttons
-        self.btn_dashboard = SidebarButton("Dashboard")
-        
-        self.sidebar_layout.addWidget(self.btn_dashboard)
-        
-        self.sidebar_layout.addStretch()
-        
-        # Version info
-        version_label = QLabel("v1.0.0-beta.1")
-        version_label.setAlignment(Qt.AlignCenter)
-        self.sidebar_layout.addWidget(version_label)
-        
-        self.main_layout.addWidget(self.sidebar_container)
 
     def init_home_page(self):
         from gui.dashboard import Dashboard
@@ -103,9 +45,6 @@ class MainWindow(QMainWindow):
         self.content_area.addWidget(self.dashboard)
         self.refresh_dashboard()
 
-        # Connect Sidebar
-        # Connect Sidebar
-        self.btn_dashboard.clicked.connect(lambda: self.content_area.setCurrentWidget(self.dashboard))
 
     def refresh_dashboard(self):
         from core.database import db_manager
@@ -117,9 +56,9 @@ class MainWindow(QMainWindow):
             from PySide6.QtCore import QProcess
             for s_id, process in self.running_servers.items():
                 if process.process.state() == QProcess.Running:
-                    status_map[s_id] = "ONLINE"
+                    status_map[s_id] = "RUNNING"
                 elif process.process.state() == QProcess.Starting:
-                    status_map[s_id] = "STARTING"
+                    status_map[s_id] = "RUNNING"
                 else:
                     status_map[s_id] = "OFFLINE"
         
@@ -149,7 +88,6 @@ class MainWindow(QMainWindow):
             self.content_area.setCurrentWidget(self.server_page)
             
             # Update sidebar selection (optional logic)
-            self.btn_dashboard.setChecked(False)
 
     def go_home(self):
         if hasattr(self, 'server_page'):
@@ -159,7 +97,6 @@ class MainWindow(QMainWindow):
              del self.server_page
              
         self.content_area.setCurrentWidget(self.dashboard)
-        self.btn_dashboard.setChecked(True)
         self.refresh_dashboard()
 
     def closeEvent(self, event):

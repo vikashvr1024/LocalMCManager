@@ -1,7 +1,7 @@
 import sys
 import os
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox, QWidget
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QFontDatabase
 from core.config_manager import config_manager
 # from gui.main_window import MainWindow # Placeholder
 
@@ -40,6 +40,13 @@ def main():
     if os.path.exists(icon_path):
         app.setWindowIcon(QIcon(icon_path))
     
+    # Load Fonts
+    font_dir = get_resource_path(os.path.join("assets", "fonts"))
+    if os.path.exists(font_dir):
+        for font_file in os.listdir(font_dir):
+            if font_file.endswith(".ttf") or font_file.endswith(".otf"):
+                QFontDatabase.addApplicationFont(os.path.join(font_dir, font_file))
+
     # Apply Global Theme
     from gui.theme import Theme
     app.setStyleSheet(Theme.QSS)
